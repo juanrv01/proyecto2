@@ -3,41 +3,44 @@ package com.example.sudoku.model;
 import java.util.ArrayList;
 import java.util.Collections;
 
-/**
- * La clase SudokuModel implementa la lógica del juego Sudoku,
- * incluyendo la generación de un tablero resuelto y vacío,
- * así como la validación de las entradas del jugador.
- *
- * @version 1.0
- * @since 2024-10-23
- *
- * @author Juan Pablo Charry Ramirez
- * @author Juan Esteban Rodriguez Valencia
- */
 public class SudokuModel implements ISudokuModel {
 
     // Tablero de juego y tablero con los intentos del jugador
     private ArrayList<ArrayList<Integer>> board, attempt;
 
-    // Matriz con la solución completa del Sudoku
-
 
     /**
-     * Constructor de la clase SudokuModel. Inicializa el tablero de juego, el tablero
-     * con los intentos del jugador y la matriz con la solución completa.
+     * SudokuModel
+     * Metodo contructor de la clase SudokuModelo
      */
     public SudokuModel() {
         board = new ArrayList<>();
         attempt = new ArrayList<>();
-        generateSudoku(); // Generar la solución
-        generateEmptySudoku(); // Generar el tablero vacío para jugar
+        generateSudoku();
+        generateEmptySudoku();
     }
 
     /**
-     * Genera el tablero completo del Sudoku resolviéndolo.
-     * Llena el tablero y la matriz de solución con los valores generados.
-     *
-     * @return El tablero generado.
+     * getBoard() devuelve el sudoku completado
+     * @return la matriz 6x6 board
+     */
+    @Override
+    public ArrayList<ArrayList<Integer>> getBoard() {
+        return board;
+    }
+
+    /**
+     * getAttempt() devuelve el sudoku que ingreso el usuario
+     * @return la matriz 6x6 attempt
+     */
+    public ArrayList<ArrayList<Integer>> getAttempt() {
+        return attempt;
+    }
+
+    /**
+     * generateSudoku, crea un una matriz board 6x6 de Integers con ArrayList y la llena con ceros
+     * posteriormente se llena con valores de un sudoku completado y se devuelce
+     * @return devuelve el sudoku resuelto
      */
     @Override
     public ArrayList<ArrayList<Integer>> generateSudoku() {
@@ -48,15 +51,14 @@ public class SudokuModel implements ISudokuModel {
             }
         }
 
-        fillBoard(0, 0);
+        fillBoard(0, 0); //Se llena el sudoku
 
         return board; // Devuelve el tablero generado
     }
 
     /**
-     * Genera un tablero vacío donde el jugador podrá ingresar sus respuestas.
-     *
-     * @return El tablero vacío generado.
+     * generateEmptySoduku , crea un una matriz attempt 6x6 de Integers con ArrayList y la llena con ceros
+     *@return devuelve la matriz con ceros
      */
     public ArrayList<ArrayList<Integer>> generateEmptySudoku() {
         for (int i = 0; i < 6; i++) {
@@ -69,25 +71,12 @@ public class SudokuModel implements ISudokuModel {
     }
 
     /**
-     * Verifica si el valor ingresado por el jugador es el valor correcto
-     * comparándolo con la solución del Sudoku.
-     *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @param num El número ingresado por el jugador.
-     * @return true si el valor es correcto, false si es incorrecto.
-     */
-    public boolean isCorrectValue(int row, int col, int num) {
-        return board.get(row).get(col) == num;
-    }
-
-    /**
-     * Método recursivo que llena el tablero usando backtracking.
-     * Genera una solución válida para el Sudoku.
-     *
-     * @param row La fila actual.
-     * @param col La columna actual.
-     * @return true si el tablero se llenó correctamente, false si no se pudo.
+     * fillBoard(int row, int col)
+     * Llena el tablero de Sudoku 6x6 utilizando backtracking, colocando números del 1 al 6 en
+     * celdas vacías de forma aleatoria y validando su posición según las reglas del Sudoku.
+     * @param row fila actual
+     * @param col columna actual
+     * @return true si el tablero se llena correctamente, false si no es posible llenar la celda.
      */
     private boolean fillBoard(int row, int col) {
         // Si llegamos al final del tablero, hemos terminado
@@ -123,13 +112,13 @@ public class SudokuModel implements ISudokuModel {
     }
 
     /**
-     * Verifica si un número puede colocarse en una posición dada,
-     * respetando las reglas del Sudoku (sin repetición en filas, columnas y bloques).
-     *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @param num El número a verificar.
-     * @return true si el número puede colocarse, false si no.
+     * isValidPlacement(int row, int col, int num)
+     * Verifica si un número puede colocarse en una celda específica, asegurándose de que no se
+     * repita en la misma fila, columna o subcuadrícula de 2x3.
+     * @param row Fila de la celda.
+     * @param col Columna de la celda
+     * @param num  Número a colocar.
+     * @return true si el número puede colocarse, false en caso contrario.
      */
     @Override
     public boolean isValidPlacement(int row, int col, int num) {
@@ -157,31 +146,23 @@ public class SudokuModel implements ISudokuModel {
                 }
             }
         }
-
         return true; // El número puede ser colocado
     }
 
     /**
-     * Devuelve el tablero actual de Sudoku.
-     *
-     * @return El tablero de juego.
+     * isCorrectValue(int row, int col, int num)
+     * Comprueba si el número en una celda específica coincide con el valor correcto del tablero.
+     * @param row Fila de la celda.
+     * @param col Columna de la celda.
+     * @param num Número a verificar.
+     * @return true si el número es correcto, false si es incorrecto.
      */
-    @Override
-    public ArrayList<ArrayList<Integer>> getBoard() {
-        return board;
+    public boolean isCorrectValue(int row, int col, int num) {
+        return board.get(row).get(col) == num;
     }
 
     /**
-     * Devuelve el tablero de intentos del jugador.
-     *
-     * @return El tablero de intentos.
-     */
-    public ArrayList<ArrayList<Integer>> getAttempt() {
-        return attempt;
-    }
-
-    /**
-     * Imprime el estado actual del tablero en la consola.
+     * Imprime el tablero de sudoku en la consola
      */
     @Override
     public void printBoard() {

@@ -32,3 +32,10 @@
     -fx-border-width: 2; /* Ancho del borde del GridPane */
     -fx-background-color: white; /* Color de fondo del GridPane */
 }
+
+.button {
+    -fx-pref-width: 100;
+    -fx-padding: 5;
+    -fx-border-color: black;
+    -fx-background-color: #c6d4e1;
+}

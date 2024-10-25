@@ -22,13 +22,13 @@
     <children>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #44749d;" GridPane.columnIndex="1">
             <children>
-                <Label layoutX="42.0" layoutY="52.0" text="SUDOKU 6X6" textFill="WHITE">
+                <Label layoutX="43.0" layoutY="56.0" text="SUDOKU 6X6" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="17.0" />
                     </font>
                 </Label>
-                <Button layoutX="74.0" layoutY="299.0" mnemonicParsing="false" onAction="#helpButton" text="Ayuda" />
-                <Label layoutX="26.0" layoutY="263.0" text="Necesitas una mano?" textFill="WHITE">
+                <Button fx:id="helpButton" layoutX="54.0" layoutY="286.0" mnemonicParsing="false" onAction="#helpButton" text="Ayuda" />
+                <Label fx:id="helpLabel" layoutX="26.0" layoutY="263.0" text="Necesitas una mano?" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="13.0" />
                     </font>
@@ -48,8 +48,24 @@
                         <Image url="@celeb.png" />
                     </image>
                 </ImageView>
+            <Button layoutX="55.0" layoutY="347.0" mnemonicParsing="false" onAction="#handleExitButtonStage" text="Exit" />
+            <Label layoutX="49.0" layoutY="322.0" text="Salir del juego" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
             </children>
         </AnchorPane>
-        <VBox fx:id="sudokuBase" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-padding: 50;" />
+        <VBox fx:id="sudokuBase" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-padding: 50; -fx-spacing: 5;">
+         <children>
+            <Label text="Ingrese la dificultad">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Button mnemonicParsing="false" onAction="#setDifficultyHard" text="Dificil" />
+            <Button mnemonicParsing="false" onAction="#setDifficultyMedium" text="Intermedio" />
+            <Button mnemonicParsing="false" onAction="#setDifficultyEasy" text="Facil" />
+         </children></VBox>
     </children>
 </GridPane>

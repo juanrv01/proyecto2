@@ -4,6 +4,7 @@ import com.example.sudoku.model.SudokuModel;
 import com.example.sudoku.model.ISudokuModel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -15,20 +16,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 import javafx.scene.Node;
+import javafx.stage.Stage;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * La clase SudokuController maneja la lógica del juego de Sudoku, incluyendo la interacción
- * con el modelo de datos y la interfaz gráfica de usuario (GUI). Se encarga de procesar las entradas del
- * usuario y gestionar la validación y visualización del estado del juego.
- *
- * @version 1.0
- * @since 2024-10-23
- *
- * @author Juan Pablo Charry Ramirez
- * @author Juan Esteban Rodriguez Valencia
- */
 public class SudokuController implements ISudokuController {
 
     // Modelo del Sudoku que gestiona la lógica del juego
@@ -38,49 +27,96 @@ public class SudokuController implements ISudokuController {
     private VBox sudokuBase; // Contenedor base de la interfaz gráfica
 
     @FXML
-    private Label congrats_one;
+    private Label congrats_one,congrats_two,helpLabel; //labels de la interfaz
 
     @FXML
-    private Label congrats_two;
+    private ImageView congrats_image;//ImageView de la interfaz
 
     @FXML
-    private ImageView congrats_image;
+    private Button helpButton; //Boton de ayuda
+
 
     @FXML
     GridPane grid = new GridPane(); // Cuadrícula de 6x6 del Sudoku
 
-    private boolean gameOver = false;
+    /**
+     * initializeGame() crea un modelo SudokuModel
+     * oculta el boton y el indicador de ayuda
+     */
+    public void initializeGame() {
+        sudokuModel = new SudokuModel();
+        helpButton.setVisible(false);
+        helpLabel.setVisible(false);
+    }
 
     /**
-     * Inicializa el juego de Sudoku, configurando el tablero y mostrando la interfaz gráfica.
-     * También muestra algunas ayudas iniciales al usuario.
+     * Pone la dificultad en dificil y le da 8 pistas al jugador
+     * @param event pulsar el boton del usuario
+     */
+    @FXML
+    void setDifficultyHard(ActionEvent event) {
+        removeButtons();
+        startGame(8);
+    }
+
+    /**
+     * Pone la dificultad en dificil y le da 14 pistas al jugador
+     * @param event pulsar el boton del usuario
+     */
+    @FXML
+    void setDifficultyMedium(ActionEvent event) {
+        removeButtons();
+        startGame(14);
+    }
+
+    /**
+     * Pone la dificultad en dificil y le da 20 pistas al jugador
+     * @param event pulsar el boton del usuario
+     */
+    @FXML
+    void setDifficultyEasy(ActionEvent event) {
+        removeButtons();
+        startGame(20);
+    }
+
+    /**
+     * limpia el Vbox borrando los botones de dificultad y su letrero
+     */
+    public void removeButtons() {
+        sudokuBase.getChildren().clear();
+    }
+
+    /**
+     * Genera un GridPane de tamaño 6x6 y en cada casilla agrega un Textfield
+     * Se muestran la cantiad de casillas que indique difficulty
+     * @param difficulty cantidad de pistas
      */
     @Override
-    public void initializeGame() {
-        sudokuModel = new SudokuModel(); // Inicializa el modelo del Sudoku
-
+    public void startGame(int difficulty) {
         grid.getStyleClass().add("custom-grid");
 
         // Crea el tablero de 6x6 con TextFields
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 6; col++) {
-                TextField cell = createTextField(row, col);
+                TextField cell = createTextField(row, col); //Se añade un textField
                 grid.add(cell, col, row);
             }
         }
-        sudokuBase.getChildren().add(grid);
+        sudokuBase.getChildren().add(grid); //Se añade el grid al VBox
 
-        // Muestra 12 ayudas iniciales al usuario
-        for (int i = 0; i < 18; i++) {
-            showHelp();
+        // Muestra las ayudas iniciales al usuario
+        for (int i = 0; i < difficulty; i++) {
+            showHelp(); //Se muestran las ayudas
         }
+
+        //Se vuelve visible la opcion de ayuda
+        helpButton.setVisible(true);
+        helpLabel.setVisible(true);
     }
 
     /**
-     * Método que se ejecuta cuando el botón de ayuda es presionado.
-     * Llama al método que muestra una pista al usuario.
-     *
-     * @param event El evento del botón de ayuda.
+     * Muestra el valor que va en un casilla
+     * @param event
      */
     @FXML
     void helpButton(ActionEvent event) {
@@ -88,11 +124,14 @@ public class SudokuController implements ISudokuController {
     }
 
     /**
-     * Establece el valor de una celda específica en la cuadrícula del Sudoku.
+     * Establece el valor de un {@code TextField} específico en la cuadrícula del Sudoku.
      *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @param value El valor que se quiere establecer.
+     * Este metodo busca el {@code TextField} en la posición especificada dentro del {@code GridPane}
+     * y, si lo encuentra, le asigna el valor proporcionado.
+     *
+     * @param row La fila del {@code TextField} en la cuadrícula.
+     * @param col La columna del {@code TextField} en la cuadrícula.
+     * @param value El valor que se quiere establecer en el {@code TextField}.
      */
     public void setTextFieldValue(int row, int col, String value) {
         // Busca el nodo (TextField) en la posición específica
@@ -109,6 +148,12 @@ public class SudokuController implements ISudokuController {
 
     /**
      * Muestra una ayuda al usuario colocando un valor correcto en una celda vacía o incorrecta.
+     *
+     * Este metodo selecciona aleatoriamente una celda en la cuadrícula del Sudoku y, si la celda está vacía
+     * o tiene un valor incorrecto, coloca el valor correcto y actualiza el intento en el modelo.
+     *
+     * Usa un ciclo para seguir seleccionando posiciones aleatorias hasta encontrar una celda que cumpla
+     * con las condiciones para mostrar la ayuda.
      */
     @Override
     public void showHelp() {
@@ -138,11 +183,10 @@ public class SudokuController implements ISudokuController {
     }
 
     /**
-     * Obtiene un TextField de la cuadrícula en una posición específica.
-     *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @return El TextField en la posición especificada, o null si no existe.
+     * Obtiene el TextField ubicado en una posición específica de la cuadrícula.
+     * @param row La fila de la celda en la cuadrícula.
+     * @param col La columna de la celda en la cuadrícula.
+     * @return El TextField en la posición especificada, o null si no se encuentra.
      */
     private TextField getTextField(int row, int col) {
         for (Node node : grid.getChildren()) {
@@ -154,12 +198,13 @@ public class SudokuController implements ISudokuController {
     }
 
     /**
-     * Maneja la entrada del usuario en una celda específica, validando el número ingresado.
-     * Si el número es correcto, lo coloca en el tablero; si es incorrecto, marca la celda en rojo.
-     *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @param value El valor ingresado por el usuario.
+     * Revisa si el valor que ingresa el usuario es valido si no lo es, lo desecha
+     * Ingresa el valor a la matriz Attempt, en caso de que se ingrese de la ayuda tambien lo guarda
+     * Si el valor es incorrecto, se marca el borde rojo hasta que se ingrese el valor correcro
+     * Se comparan los 2 arreglos, en caso de que sean iguals se acaba el juego
+     * @param row Fila
+     * @param col Columna
+     * @param value Valor de la celda
      */
     @Override
     public void handleCellInput(int row, int col, String value) {
@@ -198,12 +243,13 @@ public class SudokuController implements ISudokuController {
     }
 
     /**
-     * Crea un TextField para representar una celda del Sudoku y le añade un listener
-     * para manejar las entradas del usuario.
+     * Crea y configura un TextField para una celda del Sudoku.
+     * El listener detecta cuando el usuario ha terminado de ingresar un valor y valida que el valor
+     * sea un número entre 1 y 6, actualizando el modelo en consecuencia.
      *
-     * @param row La fila de la celda.
-     * @param col La columna de la celda.
-     * @return El TextField configurado.
+     * @param row La fila de la celda en la cuadrícula.
+     * @param col La columna de la celda en la cuadrícula.
+     * @return El TextField configurado para la celda especificada.
      */
     private TextField createTextField(int row, int col) {
         TextField textField = new TextField();
@@ -226,6 +272,12 @@ public class SudokuController implements ISudokuController {
         return textField;
     }
 
+    /**
+     * Toma cada valor del sudoku correcto y lo compara con el valor en la misma casilla que Attempt
+     * @param board Sudoku correcto
+     * @param attempt Intento del jugador
+     * @return True si son iguales, False si no
+     */
     public boolean isGameOver(ArrayList<ArrayList<Integer>> board, ArrayList<ArrayList<Integer>> attempt) {
         // Recorrer todas las posiciones de la matriz 6x6
         for (int row = 0; row < 6; row++) {
@@ -240,11 +292,19 @@ public class SudokuController implements ISudokuController {
     }
 
 
-    /**
-     * Método que inicializa el juego llamando a la función de configuración inicial del Sudoku.
-     */
     @FXML
     public void initialize() {
-        initializeGame(); // Llamar al método de inicialización del juego
+        initializeGame(); // Llamar al metodo de inicialización del juego
+    }
+
+    /**
+     * Control que permite salir del juego
+     * @param event
+     */
+    @FXML
+    private void handleExitButtonStage(ActionEvent event) {
+        // Obtener el Stage a partir del evento
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.close(); // Cierra la ventana actual
     }
 }
