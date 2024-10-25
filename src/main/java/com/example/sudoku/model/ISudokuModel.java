@@ -31,6 +31,7 @@ public interface ISudokuModel {
 
     void printBoard();
 
+    void printAttempt();
     /**
      * Revisa si el valor ingresado es el indicado
      */

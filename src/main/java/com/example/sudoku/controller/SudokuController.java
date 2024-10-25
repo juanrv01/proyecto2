@@ -22,6 +22,7 @@ public class SudokuController implements ISudokuController {
 
     // Modelo del Sudoku que gestiona la lógica del juego
     private ISudokuModel sudokuModel;
+    private boolean gameOver = false;
 
     @FXML
     private VBox sudokuBase; // Contenedor base de la interfaz gráfica
@@ -177,7 +178,6 @@ public class SudokuController implements ISudokuController {
                 setTextFieldValue(randomRow, randomCol, correctValue);
                 helpGiven = true; // Salir del ciclo cuando se haya dado la ayuda
             }
-
             sudokuModel.getAttempt().get(randomRow).set(randomCol, number);
         }
     }
@@ -208,33 +208,36 @@ public class SudokuController implements ISudokuController {
      */
     @Override
     public void handleCellInput(int row, int col, String value) {
-        // Validar si el valor ingresado es un número entre 1 y 6
-        if (!value.matches("[1-6]")) {
-            return; // Salir si el valor no es un número válido
+        TextField cell = getTextField(row, col); // Obtener el TextField correspondiente
+
+        if (!value.isEmpty()) {
+            sudokuModel.getAttempt().get(row).set(col, Integer.parseInt(value)); // Solo actualizar el modelo si no está vacío
+        } else {
+            sudokuModel.getAttempt().get(row).set(col, null); // O establecer como nulo o vacío en el modelo
         }
 
-        int num = Integer.parseInt(value); // Convertir el valor a un número entero
-
-        TextField cell = getTextField(row, col);
-
-        // Validar contra la solución predefinida
-        if (sudokuModel.isCorrectValue(row, col, num) || value.isEmpty()) {
-            sudokuModel.getBoard().get(row).set(col, num); // Actualizar el modelo con el valor ingresado
-            setTextFieldValue(row, col, value); // Mostrar el valor en la celda
+        if (value.isEmpty()) {
+            // Si el campo está vacío, restablecer el borde
             if (cell != null) {
-                cell.setStyle(""); // Eliminar el borde rojo si el valor es correcto
+                cell.setStyle(""); // Restablecer el estilo
             }
+            return; // Salir si el campo está vacío
+        }
 
-            // Actualizar el intento del usuario
-            sudokuModel.getAttempt().get(row).set(col, num);
+        Integer num = Integer.parseInt(value); // Convertir el valor a un número entero
+
+
+
+        if (!num.equals(sudokuModel.getBoard().get(row).get(col))) {
+            cell.setStyle("-fx-border-color: red;");
 
         } else {
-            if (cell != null) {
-                cell.setStyle("-fx-border-color: red;"); // Marcar en rojo si es incorrecto
-            }
+            cell.setStyle("-fx-border-color: grey;");
         }
 
-        // Verificar si el juego ha terminado
+
+        // Comprobar si el juego ha terminado
+
         if (isGameOver(sudokuModel.getBoard(), sudokuModel.getAttempt())) {
             congrats_one.setVisible(true);
             congrats_two.setVisible(true);
@@ -261,9 +264,8 @@ public class SudokuController implements ISudokuController {
             String input = textField.getText(); // Obtener el valor del TextField
 
             // Verificar si el valor ingresado es un número válido entre 1 y 6
-            if (input.matches("[1-6]")) {
-                handleCellInput(row, col, input);// Procesar el input solo después de que el valor ha sido ingresado
-                sudokuModel.getBoard().get(row).set(col, Integer.valueOf(input));
+            if (input.matches("[1-6]|")) { // Aceptar números del 1 al 6 o cadena vacía
+                handleCellInput(row, col, input); // Procesar el input
             }
         });
 

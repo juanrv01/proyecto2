@@ -170,4 +170,11 @@ public class SudokuModel implements ISudokuModel {
             System.out.println(row);
         }
     }
+
+    @Override
+    public void printAttempt() {
+        for (ArrayList<Integer> row : attempt) {
+            System.out.println(row);
+        }
+    }
 }
